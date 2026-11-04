@@ -1,0 +1,13 @@
+{
+  "name": "gortex-dashboard",
+  "version": "1.0.0",
+  "description": "Local Gortex code-intelligence dashboard: daemon health, graph size per repo, tool-call token savings, and repository add/remove.",
+  "author": {
+    "name": "Stefan Wuthrich",
+    "email": "st.wuthrich@gmail.com"
+  },
+  "homepage": "https://github.com/altafino/gortex-dashboard",
+  "repository": "https://github.com/altafino/gortex-dashboard",
+  "license": "Apache-2.0",
+  "keywords": ["gortex", "dashboard", "echarts", "code-intelligence", "observability", "sqlite"]
+}

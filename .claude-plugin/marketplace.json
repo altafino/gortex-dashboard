@@ -1,0 +1,16 @@
+{
+  "name": "altafino",
+  "description": "Altafino agent tooling — dashboards and developer-workflow plugins for Claude Code.",
+  "owner": {
+    "name": "Altafino",
+    "email": "st.wuthrich@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "gortex-dashboard",
+      "source": "./plugins/gortex-dashboard",
+      "description": "Local Gortex code-intelligence dashboard: daemon health, graph size per repo, token savings, and repository add/remove.",
+      "version": "1.0.0"
+    }
+  ]
+}
