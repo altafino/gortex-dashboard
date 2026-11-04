@@ -10,7 +10,7 @@
       "name": "gortex-dashboard",
       "source": "./plugins/gortex-dashboard",
       "description": "Local Gortex code-intelligence dashboard: daemon health, graph size per repo, token savings, and repository add/remove.",
-      "version": "1.0.0"
+      "version": "1.0.1"
     }
   ]
 }

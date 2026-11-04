@@ -37,7 +37,9 @@ python3 scripts/gortex-dashboard.py --open
 python3 scripts/gortex-dashboard.py --serve
 ```
 
-Writes `~/.local/share/gortex-dashboard/index.html`; `--serve` binds `127.0.0.1` only.
+Writes `~/.local/share/gortex-dashboard/index.html`; `--serve` binds `127.0.0.1` only and then
+opens the page itself (socket first, browser second — no connection-refused race). Pass
+`--no-open` when you want to hand the URL to the user instead.
 
 Flags: `--open` · `--serve` · `--port N` (default 8899) · `--no-open` · `--no-snapshot`
 · `--print` (dump the collected JSON) · `--out PATH`.
@@ -87,6 +89,9 @@ verify the change before reporting success, then the page reloads.
   gets a fake zero point.
 - ECharts is cached as `echarts.min.js` next to the HTML on first run (~1 MB) so the page works
   offline; the CDN is the fallback.
+- `open_page()` tries `xdg-open`, then `open` (macOS), then `webbrowser`. `webbrowser.open()` can
+  return False under an agent session while the desktop browser is fine, so never use its return
+  value alone to decide whether the user saw the page.
 - `--json` is not a flag on `gortex status`; use `gortex repos --json` for machine-readable data.
 
 ## Extending

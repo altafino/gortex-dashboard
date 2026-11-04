@@ -260,6 +260,21 @@ def do_untrack(path):
     return {"ok": gone, "message": (out.strip().splitlines() or ["untracked"])[-1]}
 
 
+def open_page(target):
+    """Hand a URL/page to the desktop browser; True when a launcher accepted it."""
+    url = target if "://" in target else "file://" + target
+    for cmd in (["xdg-open", url], ["open", url]):  # linux, macos
+        try:
+            if subprocess.run(cmd, capture_output=True, timeout=20).returncode == 0:
+                return True
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            continue
+    if webbrowser.open(url):
+        return True
+    print(f"[gortex-dashboard] no browser launcher — open {url} yourself", file=sys.stderr)
+    return False
+
+
 class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
@@ -317,16 +332,17 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, {"error": "not found"})
 
 
-def serve(port, open_browser=True):
+def serve(port, open_when_ready=True):
     data = build()  # one snapshot per server start, not per request
     data["served"] = True
     data["candidates"] = candidates()
     render(data, HTML_PATH)
+    httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)  # bind first: no race
     url = f"http://127.0.0.1:{port}/"
-    print(url)
-    if open_browser:
-        webbrowser.open(url)
-    ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
+    print(url, flush=True)
+    if open_when_ready:
+        open_page(url)
+    httpd.serve_forever()
 
 
 # ---------------------------------------------------------------- snapshot store
@@ -770,7 +786,7 @@ def main():
     a = ap.parse_args()
 
     if a.serve:
-        return serve(a.port, open_browser=not a.no_open)
+        return serve(a.port, open_when_ready=not a.no_open)
     data = build(snapshot=not a.no_snapshot)
     if a.print:
         print(json.dumps(data, indent=2))
@@ -778,7 +794,7 @@ def main():
     path = render(data, a.out)
     print(path)
     if a.open:
-        webbrowser.open("file://" + path)
+        open_page(path)
 
 
 if __name__ == "__main__":

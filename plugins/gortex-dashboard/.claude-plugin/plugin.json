@@ -1,6 +1,6 @@
 {
   "name": "gortex-dashboard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Local Gortex code-intelligence dashboard: daemon health, graph size per repo, tool-call token savings, and repository add/remove.",
   "author": {
     "name": "Stefan Wuthrich",
