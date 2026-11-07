@@ -16,8 +16,8 @@ run:
 package:
 	rm -rf $(DIST)
 	mkdir -p $(DIST)
-	tar czf $(DIST)/$(NAME)-plugin.tar.gz -C plugins $(NAME)
-	tar czf $(DIST)/$(NAME)-skill.tar.gz -C $(PLUGIN)/skills dashboard
+	tar czf $(DIST)/$(NAME)-plugin.tar.gz --exclude=__pycache__ -C plugins $(NAME)
+	tar czf $(DIST)/$(NAME)-skill.tar.gz --exclude=__pycache__ -C $(PLUGIN)/skills dashboard
 	( cd $(DIST) && sha256sum *.tar.gz > checksums.txt )
 	@ls -l $(DIST)
 
