@@ -140,7 +140,25 @@ def collect_repos_json():
     return {r.get("name"): r for r in data if isinstance(r, dict)}
 
 
-def sidecar():
+def daemon_sidecar(pid):
+    """The sidecar the running daemon writes: `<root>/sidecar.sqlite` beside the
+    `<root>/store/store.sqlite` it holds open. Linux only (/proc); None otherwise."""
+    fd_dir = f"/proc/{pid}/fd"
+    try:
+        links = [os.readlink(os.path.join(fd_dir, fd)) for fd in os.listdir(fd_dir)]
+    except OSError:
+        return None
+    for link in links:
+        if link.endswith("/store/store.sqlite"):
+            path = os.path.join(os.path.dirname(os.path.dirname(link)), "sidecar.sqlite")
+            if os.path.exists(path):
+                return path
+    return None
+
+
+def sidecar(pid=None):
+    if pid and (path := daemon_sidecar(pid)):
+        return path
     best = None
     for path in SIDECARS:
         if not os.path.exists(path):
@@ -156,11 +174,11 @@ def sidecar():
     return best[0] if best else None
 
 
-def collect_savings():
+def collect_savings(pid=None):
     empty = {"events": 0, "saved": 0, "returned": 0, "calls": 0,
              "by_day": [], "by_tool": [], "by_lang": [], "by_client": [], "by_repo": [],
              "first_ts": None, "last_ts": None, "memories": 0, "memory_kinds": [], "promoted": []}
-    path = sidecar()
+    path = sidecar(pid)
     if not path:
         return empty
     con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
@@ -753,7 +771,7 @@ def build(snapshot=True):
         r["stale"] = bool(j.get("stale"))
         r["last_indexed"] = j.get("last_indexed", "")
         r["head"] = (j.get("head_commit") or "")[:12]
-    savings = collect_savings()
+    savings = collect_savings(daemon["pid"])
     history = store_snapshot(daemon, repos, savings) if snapshot else []
     return {
         "generated": int(time.time()),

@@ -73,8 +73,10 @@ verify the change before reporting success, then the page reloads.
 
 - The sidecar is a live WAL database owned by the daemon: open it `mode=ro` with the `-wal`/`-shm`
   files readable, never write to it, and never copy it.
-- Two sidecars exist (`~/.gortex/sidecar.sqlite` active, `~/.local/share/gortex/sidecar.sqlite`
-  legacy). The script picks whichever holds more `savings_events`; do not sum them.
+- Two sidecars can exist (`~/.gortex/sidecar.sqlite`, `~/.local/share/gortex/sidecar.sqlite`);
+  the daemon's data dir follows `XDG_DATA_HOME`. `daemon_sidecar()` reads the one beside the
+  `store/store.sqlite` the running daemon holds open (`/proc/<pid>/fd`); without /proc or a
+  daemon it falls back to whichever holds more `savings_events`. Never sum them.
 - `gortex daemon status` prints differently to a TTY vs a pipe, and its table borders must be
   skipped, not treated as row terminators — that is why `box_tables()` ignores `┌├└` lines.
 - `gortex untrack` is two-stage: the first call drops the index, a second removes the config
